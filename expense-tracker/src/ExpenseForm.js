@@ -1,52 +1,49 @@
 import React, { useState } from 'react';
+import { addExpense, updateExpense } from './api';
 
-const ExpenseForm = ({ addExpense }) => {
-  const [date, setDate] = useState('');
+const ExpenseForm = ({ expenseToUpdate, setExpenseToUpdate }) => {
+  const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('');
-  const [description, setDescription] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Create an expense object
-    const expense = {
-      date,
+    const newExpense = {
+      title,
       amount: parseFloat(amount),
-      category,
-      description,
     };
 
-    // Call the addExpense function from props to add the expense
-    addExpense(expense);
+    if (expenseToUpdate) {
+      // Updating existing expense
+      await updateExpense(expenseToUpdate.id, newExpense);
+      setExpenseToUpdate(null);
+    } else {
+      // Adding new expense
+      await addExpense(newExpense);
+    }
 
-    // Reset the form fields
-    setDate('');
+    // Reset form inputs
+    setTitle('');
     setAmount('');
-    setCategory('');
-    setDescription('');
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Add Expense</h2>
-      <div>
-        <label>Date:</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-      </div>
-      <div>
-        <label>Amount:</label>
-        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-      </div>
-      <div>
-        <label>Category:</label>
-        <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} required />
-      </div>
-      <div>
-        <label>Description:</label>
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
-      </div>
-      <button type="submit">Add Expense</button>
+      <input
+        type="text"
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        required
+      />
+      <input
+        type="number"
+        placeholder="Amount"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        required
+      />
+      <button type="submit">{expenseToUpdate ? 'Update Expense' : 'Add Expense'}</button>
     </form>
   );
 };
